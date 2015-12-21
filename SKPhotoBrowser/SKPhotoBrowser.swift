@@ -170,9 +170,9 @@ public class SKPhotoBrowser: UIViewController, UIScrollViewDelegate, UIActionShe
         }
         
         // arrows:back
-        let bundle = NSBundle(forClass: SKPhotoBrowser.self)
+        let bundle = NSBundle(path: NSBundle.mainBundle().pathForResource("SKPhotoBrowser", ofType: "bundle")!)!
         let previousBtn = UIButton(type: .Custom)
-        let previousImage = UIImage(named: "SKPhotoBrowser.bundle/images/btn_common_back_wh", inBundle: bundle, compatibleWithTraitCollection: nil) ?? UIImage()
+        let previousImage = UIImage(contentsOfFile: bundle.pathForResource("images/btn_common_back_wh", ofType: "png")!) ?? UIImage()
         previousBtn.frame = CGRectMake(0, 0, 44, 44)
         previousBtn.imageEdgeInsets = UIEdgeInsetsMake(13.25, 17.25, 13.25, 17.25)
         previousBtn.setImage(previousImage, forState: .Normal)
@@ -182,7 +182,7 @@ public class SKPhotoBrowser: UIViewController, UIScrollViewDelegate, UIActionShe
         
         // arrows:next
         let nextBtn = UIButton(type: .Custom)
-        let nextImage = UIImage(named: "SKPhotoBrowser.bundle/images/btn_common_forward_wh", inBundle: bundle, compatibleWithTraitCollection: nil) ?? UIImage()
+        let nextImage = UIImage(contentsOfFile: bundle.pathForResource("images/btn_common_forward_wh", ofType: "png")!) ?? UIImage()
         nextBtn.frame = CGRectMake(0, 0, 44, 44)
         nextBtn.imageEdgeInsets = UIEdgeInsetsMake(13.25, 17.25, 13.25, 17.25)
         nextBtn.setImage(nextImage, forState: .Normal)
@@ -201,7 +201,7 @@ public class SKPhotoBrowser: UIViewController, UIScrollViewDelegate, UIActionShe
         toolCounterButton = UIBarButtonItem(customView: toolCounterLabel)
         
         // close
-        let doneImage = UIImage(named: "SKPhotoBrowser.bundle/images/btn_common_close_wh", inBundle: bundle, compatibleWithTraitCollection: nil) ?? UIImage()
+        let doneImage = UIImage(contentsOfFile: bundle.pathForResource("images/btn_common_close_wh", ofType: "png")!) ?? UIImage()
         doneButton = UIButton(type: UIButtonType.Custom)
         doneButton.setImage(doneImage, forState: UIControlState.Normal)
         doneButton.frame = doneButtonHideFrame
@@ -832,10 +832,18 @@ public class SKPhotoBrowser: UIViewController, UIScrollViewDelegate, UIActionShe
                     }
                 }
                 activityViewController = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
-                activityViewController.completionWithItemsHandler = {
-                    (activity, success, items, error) in
-                    self.hideControlsAfterDelay()
-                    self.activityViewController = nil
+                if #available(iOS 8.0, *) {
+                    activityViewController.completionWithItemsHandler = {
+                        (activity, success, items, error) in
+                        self.hideControlsAfterDelay()
+                        self.activityViewController = nil
+                    }
+                } else {
+                    activityViewController.completionHandler = {
+                        (activity, success) in
+                        self.hideControlsAfterDelay()
+                        self.activityViewController = nil
+                    }
                 }
                 if UI_USER_INTERFACE_IDIOM() == .Phone {
                     presentViewController(activityViewController, animated: true, completion: nil)
